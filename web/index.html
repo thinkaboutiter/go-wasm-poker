@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Texas Hold'em Poker</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        header {
+            background-color: #1a1a1a;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        #wasm-container {
+            width: 800px;
+            height: 600px;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        }
+        
+        #loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        footer {
+            background-color: #1a1a1a;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+        }
+        
+        .note {
+            background-color: #333;
+            border-left: 4px solid #3498db;
+            padding: 10px 20px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Texas Hold'em Poker with Gio UI</h1>
+    </header>
+    
+    <main>
+        <div class="note">
+            <p><strong>Note:</strong> This application uses a mock implementation of SpaceTimeDB as there is currently no official Go client library for SpaceTimeDB that supports WebAssembly.</p>
+        </div>
+        
+        <div id="wasm-container">
+            <div id="loading">
+                <div class="spinner"></div>
+                <p>Loading WebAssembly application...</p>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>Go WebAssembly Texas Hold'em Poker with Gio UI</p>
+    </footer>
+    
+    <script src="wasm_exec.js"></script>
+    <script>
+        // WebAssembly loading and initialization
+        const go = new Go();
+        
+        WebAssembly.instantiateStreaming(fetch("poker.wasm"), go.importObject)
+            .then((result) => {
+                document.getElementById("loading").style.display = "none";
+                go.run(result.instance);
+            })
+            .catch((err) => {
+                console.error("Failed to load WebAssembly:", err);
+                document.getElementById("loading").innerHTML = 
+                    `<p style="color: red;">Error loading WebAssembly: ${err.message}</p>`;
+            });
+    </script>
+</body>
+</html>
